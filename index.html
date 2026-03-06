@@ -270,19 +270,19 @@
 
             // 骨相分析
             const guxiangScores = [
-                { name: '轮廓立体度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.0))).toFixed(1), pros: '骨骼结构良好', cons: '可通过妆容优化' },
-                { name: '颧骨形态', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 0.9))).toFixed(1), pros: '骨骼结构良好', cons: '可通过妆容优化' },
-                { name: '下颌线', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.1))).toFixed(1), pros: '骨骼结构良好', cons: '可通过妆容优化' },
-                { name: '额头饱满度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 0.8))).toFixed(1), pros: '骨骼结构良好', cons: '可通过妆容优化' }
+                { name: '轮廓立体度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.0))).toFixed(1), pros: '面部有一定立体感', cons: '面部可能较平，需要修容增加立体感' },
+                { name: '颧骨形态', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 0.9))).toFixed(1), pros: '颧骨位置正常', cons: '颧骨可能不够明显或略突出' },
+                { name: '下颌线', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.1))).toFixed(1), pros: '下颌线正常', cons: '下颌线可能不够清晰或略宽' },
+                { name: '额头饱满度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 0.8))).toFixed(1), pros: '额头大小适中', cons: '额头可能较平或略窄' }
             ];
             renderFeatures('guxiangAnalysis', guxiangScores);
 
             // 皮相分析
             const pixiangScores = [
-                { name: '皮肤质感', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.2))).toFixed(1), pros: '皮肤状态正常', cons: '注意日常保养' },
-                { name: '肤色均匀度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.0))).toFixed(1), pros: '皮肤状态正常', cons: '注意日常保养' },
-                { name: '肤质细腻度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.1))).toFixed(1), pros: '皮肤状态正常', cons: '注意日常保养' },
-                { name: '光泽度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 0.9))).toFixed(1), pros: '皮肤状态正常', cons: '注意日常保养' }
+                { name: '皮肤质感', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.2))).toFixed(1), pros: '皮肤状态正常', cons: '可能有轻微毛孔或粗糙问题' },
+                { name: '肤色均匀度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.0))).toFixed(1), pros: '肤色较为均匀', cons: '可能有轻微色斑或暗沉' },
+                { name: '肤质细腻度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.1))).toFixed(1), pros: '肤质细腻', cons: '可能有轻微粗糙感' },
+                { name: '光泽度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 0.9))).toFixed(1), pros: '皮肤有自然光泽', cons: '可能有轻微暗沉' }
             ];
             renderFeatures('pixiangAnalysis', pixiangScores);
 
