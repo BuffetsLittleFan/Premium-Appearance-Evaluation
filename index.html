@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级颜值测试系统 - 智能版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: #f5f7fa; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #7c5cff 0%, #9d7cff 100%); padding: 60px 20px; text-align: center; color: white; }
+        .header h1 { font-size: 42px; font-weight: 600; margin-bottom: 15px; }
+        .container { max-width: 1000px; margin: -30px auto 0; padding: 0 20px 40px; }
+        .card { background: white; border-radius: 16px; padding: 35px; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .welcome-title { font-size: 28px; color: #7c5cff; font-weight: 600; margin-bottom: 15px; text-align: center; }
+        .welcome-desc { color: #666; font-size: 15px; line-height: 1.8; text-align: center; }
+        .upload-area { border: 2px dashed #ddd; border-radius: 12px; padding: 50px; text-align: center; cursor: pointer; background: #fafafa; margin-bottom: 20px; transition: all 0.3s; }
+        .upload-area:hover { border-color: #7c5cff; background: #f8f6ff; }
+        .upload-icon { font-size: 48px; margin-bottom: 15px; }
+        .preview-container { padding: 20px; background: white; border-radius: 12px; margin-bottom: 20px; display: none; }
+        .preview-image { max-width: 100%; max-height: 300px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .file-name { color: #666; margin-top: 10px; font-size: 14px; }
+        .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, #7c5cff, #9d7cff); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(124, 92, 255, 0.4); }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        .result-title { text-align: center; font-size: 32px; color: #333; font-weight: 600; margin-bottom: 10px; }
+        .result-title::after { content: ''; display: block; width: 80px; height: 4px; background: linear-gradient(135deg, #7c5cff, #9d7cff); margin: 15px auto 0; border-radius: 2px; }
+        .total-score { text-align: center; margin: 40px 0; }
+        .score-number { font-size: 120px; font-weight: 700; background: linear-gradient(135deg, #7c5cff, #9d7cff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+        .score-bar-container { max-width: 500px; margin: 30px auto; }
+        .score-bar-bg { width: 100%; height: 12px; background: #e8e8e8; border-radius: 6px; overflow: hidden; }
+        .score-bar-fill { height: 100%; background: linear-gradient(135deg, #7c5cff, #9d7cff); border-radius: 6px; transition: width 1s ease; }
+        .analysis-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-top: 30px; }
+        @media (max-width: 768px) { .analysis-grid { grid-template-columns: 1fr; } }
+        .analysis-box { background: #fafbfc; border-radius: 12px; padding: 25px; border: 1px solid #eef0f4; }
+        .analysis-box.full-width { grid-column: 1 / -1; }
+        .box-title { font-size: 20px; color: #7c5cff; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .feature-item { margin-bottom: 18px; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .feature-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .feature-name { font-weight: 500; color: #333; font-size: 15px; }
+        .feature-score { font-weight: 600; color: #7c5cff; font-size: 18px; }
+        .feature-bar { width: 100%; height: 8px; background: #e8e8e8; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+        .feature-fill { height: 100%; background: linear-gradient(135deg, #7c5cff, #9d7cff); border-radius: 4px; transition: width 0.8s ease; }
+        .feature-pros { font-size: 13px; color: #52c41a; margin-bottom: 5px; }
+        .feature-cons { font-size: 13px; color: #ff4d4f; }
+        .detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 25px; }
+        @media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+        .detail-card { background: #fafbfc; border-radius: 10px; padding: 20px; border: 1px solid #eef0f4; }
+        .detail-title { font-size: 16px; color: #7c5cff; font-weight: 600; margin-bottom: 12px; }
+        .detail-content { font-size: 14px; color: #555; line-height: 1.8; }
+        .detail-content p { margin-bottom: 10px; }
+        .detail-list { list-style: none; padding-left: 0; margin-top: 10px; }
+        .detail-list li { padding: 5px 0 5px 18px; position: relative; font-size: 14px; color: #555; }
+        .detail-list li::before { content: '✓'; color: #7c5cff; font-weight: bold; position: absolute; left: 0; }
+        .type-card { text-align: center; padding: 35px; }
+        .type-badge { display: inline-block; background: linear-gradient(135deg, #ff6b9d, #ffa36c); color: white; padding: 12px 35px; border-radius: 25px; font-size: 20px; font-weight: 600; margin: 15px 0; box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3); }
+        .type-desc { color: #555; font-size: 15px; line-height: 1.8; max-width: 700px; margin: 0 auto 25px; }
+        .type-tags { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .type-tag { padding: 8px 18px; background: #f5f5f5; border-radius: 20px; font-size: 14px; color: #666; }
+        .makeup-title { text-align: center; font-size: 22px; color: #7c5cff; font-weight: 600; margin-bottom: 25px; }
+        .makeup-list { list-style: none; padding: 0; }
+        .makeup-list li { padding: 15px; margin-bottom: 10px; background: #fafbfc; border-radius: 10px; border-left: 3px solid #7c5cff; font-size: 14px; line-height: 1.7; color: #555; }
+        .makeup-list strong { color: #333; display: block; margin-bottom: 5px; }
+        .makeup-note { margin-top: 25px; padding: 20px; background: linear-gradient(135deg, #f8f6ff, #fff); border-radius: 12px; font-size: 15px; color: #7c5cff; text-align: center; border: 1px solid #e8e0ff; }
+        .button-group { display: flex; justify-content: center; gap: 20px; margin-top: 30px; }
+        .btn-outline { padding: 14px 40px; background: white; border: 2px solid #7c5cff; color: #7c5cff; border-radius: 25px; font-size: 15px; cursor: pointer; transition: all 0.3s; }
+        .btn-outline:hover { background: #f8f6ff; }
+        .btn-pink { padding: 14px 40px; background: linear-gradient(135deg, #ff6b9d, #ffa36c); border: none; color: white; border-radius: 25px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3); }
+        .btn-pink:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4); }
+        #fileInput { display: none; }
+        .loading { text-align: center; padding: 60px; display: none; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #e8e8e8; border-top: 4px solid #7c5cff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .result-section { display: none; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>高级颜值测试系统</h1><p>专业面部分析 - 仅限受邀用户使用</p></div>
+    <div class="container">
+        <div id="uploadPage">
+            <div class="card">
+                <div class="welcome-title">欢迎使用高级颜值测试系统</div>
+                <div class="welcome-desc">上传您的照片，我们将为您提供全面的面部分析，包括五官评分、骨相分析、皮相评价以及个性化的化妆建议。</div>
+            </div>
+            <div class="card">
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📸</div>
+                    <div>点击上传照片</div>
+                    <small style="color:#999">支持 JPG、PNG 格式</small>
+                </div>
+                <div class="preview-container" id="previewContainer">
+                    <img id="previewImage" class="preview-image" src="" alt="预览">
+                    <div class="file-name" id="fileName"></div>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this)">
+                <button class="btn-primary" id="startBtn" onclick="startAnalyze()" disabled>开始分析</button>
+            </div>
+        </div>
+
+        <div class="card loading" id="loadingPage"><div class="spinner"></div><div>AI正在分析面部特征...</div></div>
+
+        <div class="result-section" id="resultPage">
+            <div class="card">
+                <div class="result-title">颜值分析报告</div>
+                <div class="total-score"><div class="score-number" id="totalScore">--</div></div>
+                <div class="score-bar-container"><div class="score-bar-bg"><div class="score-bar-fill" id="scoreBar" style="width:0%"></div></div></div>
+            </div>
+
+            <div class="analysis-grid">
+                <div class="analysis-box"><div class="box-title">📊 五官分析</div><div id="wuguanAnalysis"></div></div>
+                <div class="analysis-box"><div class="box-title">🔬 骨相分析</div><div id="guxiangAnalysis"></div></div>
+                <div class="analysis-box full-width"><div class="box-title">✨ 皮相分析</div><div id="pixiangAnalysis"></div></div>
+            </div>
+
+            <div class="card">
+                <div class="result-title" style="margin-bottom:25px">🔍 详细五官面部分析</div>
+                <div class="detail-grid" id="detailAnalysis"></div>
+            </div>
+
+            <div class="card type-card">
+                <div class="result-title" style="margin-bottom:15px">您的颜值类型</div>
+                <div class="type-badge" id="typeName">--</div>
+                <div class="type-desc" id="typeDesc">--</div>
+                <div class="type-tags" id="typeTags"></div>
+            </div>
+
+            <div class="card">
+                <div class="makeup-title">💄 专业化妆建议</div>
+                <ul class="makeup-list" id="makeupList"></ul>
+                <div class="makeup-note">记住，化妆的目的是增强您的优点，而不是完全改变您的面貌。找到最适合自己的妆容风格最重要！</div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-outline" onclick="reset()">重新分析</button>
+                <button class="btn-pink" onclick="share()">分享结果</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 随机数据库 =====
+        const beautyTypes = [
+            { name: '皮相美人', desc: '您的皮肤状态极佳，肤质细腻光泽，五官柔和协调，给人一种温柔甜美的感觉。皮相美通常在第一眼就能吸引人。', tags: ['皮肤状态极佳', '五官柔和甜美', '第一眼美女'] },
+            { name: '骨相美人', desc: '您的面部骨骼结构优越，轮廓分明，五官立体深邃。骨相美具有很强的耐看性，随着年龄增长会更显气质。', tags: ['轮廓立体', '五官深邃', '高级脸'] },
+            { name: '气质美人', desc: '您拥有独特的气质魅力，举止优雅，神态自然。这种美由内而外散发，具有很强的个人辨识度。', tags: ['气质出众', '优雅大方', '独特魅力'] },
+            { name: '甜美型', desc: '您的五官柔和可爱，笑容甜美有感染力。这种类型给人亲切友善的感觉，容易让人产生好感。', tags: ['甜美可爱', '亲和力强', '笑容治愈'] },
+            { name: '清冷型', desc: '您的五官精致疏离，气质淡雅脱俗。这种类型具有独特的仙气，给人高级、神秘的感觉。', tags: ['清冷脱俗', '高级感', '独特气质'] },
+            { name: '浓颜系', desc: '您的五官量感大，视觉冲击力强，妆容稍微修饰就能非常出彩。适合走明艳大气的路线。', tags: ['五官量感大', '视觉冲击', '明艳大气'] }
+        ];
+
+        const wuguanData = {
+            eyes: [
+                { pros: '眼睛形状优美，眼神明亮', cons: '眼睛可能不够有神，或存在轻微不对称' },
+                { pros: '眼型标准，双眼皮自然', cons: '眼尾略微下垂，需要眼线修饰' },
+                { pros: '眼睛有神，睫毛浓密', cons: '眼皮略肿，需要消肿眼妆' }
+            ],
+            nose: [
+                { pros: '鼻梁挺拔，侧面线条优美', cons: '鼻梁可能不够立体' },
+                { pros: '鼻头小巧，鼻翼适中', cons: '鼻头略大，需要修容' },
+                { pros: '鼻型标准，符合美学比例', cons: '鼻翼略宽，需要缩小妆' }
+            ],
+            lips: [
+                { pros: '唇形标准，厚度适中', cons: '嘴唇较薄，需要丰唇妆' },
+                { pros: '唇线清晰，轮廓分明', cons: '嘴角略下垂，需要提升' },
+                { pros: '唇色自然，气色好', cons: '唇纹较深，需要滋润' }
+            ],
+            face: [
+                { pros: '脸型圆润，显年轻', cons: '脸型较圆，需要修容显瘦' },
+                { pros: '面部饱满，有福气', cons: '下颌线不明显，需要提拉' },
+                { pros: '脸型柔和，亲和力强', cons: '面部较宽，需要发型修饰' }
+            ]
+        };
+
+        const detailData = {
+            eyes: [
+                { type: '双眼皮', feature: '外眼角下垂', items: ['眼型基本符合美学标准', '眼神自然有亲和力', '建议通过眼妆增强眼部立体感'] },
+                { type: '内双', feature: '眼型偏圆', items: ['眼睛显得幼态可爱', '适合走甜美路线', '建议用大地色系眼影放大双眼'] },
+                { type: '明显的双眼皮', feature: '眼尾上扬', items: ['眼型妩媚动人', '自带眼线效果', '建议淡妆即可，避免浓妆显老'] }
+            ],
+            nose: [
+                { type: '直鼻', feature: '鼻翼适中', items: ['鼻型标准，侧脸优美', '符合主流审美', '建议高光打在鼻梁中段'] },
+                { type: '小翘鼻', feature: '鼻头微翘', items: ['鼻型俏皮可爱', '显年轻活力', '建议不要过度修容'] },
+                { type: '驼峰鼻', feature: '鼻梁有起伏', items: ['鼻型有辨识度', '高级感满满', '建议接受自然美，少量修饰'] }
+            ],
+            lips: [
+                { type: 'M唇', feature: '唇珠明显', items: ['唇形立体性感', '上镜效果好', '建议裸色或豆沙色唇膏'] },
+                { type: '微笑唇', feature: '嘴角上扬', items: ['自带笑容，亲和力强', '人缘好', '建议避免太深的颜色'] },
+                { type: '厚唇', feature: '唇形饱满', items: ['唇形性感诱人', '气场强大', '建议咬唇妆或渐变唇'] }
+            ],
+            face: [
+                { type: '鹅蛋脸', feature: '线条流畅', items: ['脸型标准，百搭发型', '适合各种妆容', '几乎不需要修容'] },
+                { type: '圆脸', feature: '下巴圆润', items: ['显年轻可爱', '亲和力强', '建议用修容拉长脸型'] },
+                { type: '方脸', feature: '下颌明显', items: ['脸型高级有气场', '适合御姐风', '建议用发型柔化轮廓'] }
+            ]
+        };
+
+        const makeupData = [
+            [{ title: '眼妆重点', content: '您的眼型很好，只需用浅色眼影打底，深色眼影在睫毛根部晕染增加立体感即可。' }, { title: '鼻部修容', content: '您的鼻型很好，只需在鼻梁中央轻轻扫上高光即可增强立体感。' }, { title: '面部修容', content: '在颧骨下方、下颌线处使用修容粉，从外向内晕染。在苹果肌、额头中央、下巴和鼻梁使用高光提亮。' }, { title: '唇妆技巧', content: '您的唇形很好，直接使用唇膏或唇釉即可，可以在唇峰处轻点高光增加立体感。' }, { title: '底妆技巧', content: '选择与脖子肤色一致的粉底液，先用湿润的美妆蛋薄薄上一层，在需要遮盖的部位局部叠加。最后用散粉定妆。' }],
+            [{ title: '眼妆重点', content: '建议使用大地色系眼影，眼尾加深拉长眼型。内眼线填满睫毛根部，外眼线略微上扬。' }, { title: '鼻部修容', content: '鼻梁两侧用灰棕色修容粉，从眉头下方开始向下晕染，鼻头处画小V字缩小鼻头。' }, { title: '面部修容', content: '圆脸在脸颊两侧修容，长脸在额头和下巴修容，方脸在下颌角处重点修容。' }, { title: '唇妆技巧', content: '薄唇可以用唇线笔稍微外扩，厚唇用遮瑕打底后内深外浅。' }, { title: '底妆技巧', content: '先上遮瑕再上粉底，瑕疵处用点拍方式。最后用散粉定妆，重点在T区和眼下多按压几次。' }],
+            [{ title: '眼妆重点', content: '单眼皮或内双建议用哑光眼影，避免珠光显肿。睫毛夹翘后刷睫毛膏，视觉上放大眼睛。' }, { title: '鼻部修容', content: '鼻梁低平的建议重点高光，从眉心到鼻尖连贯提亮。鼻翼宽的在鼻翼两侧打阴影。' }, { title: '面部修容', content: '根据脸型特点修容：圆脸纵向修，方脸柔和下颌，长脸横向修缩短脸型。' }, { title: '唇妆技巧', content: '嘴角下垂的用唇线笔上扬嘴角，唇色选择明亮色系提升气色。' }, { title: '底妆技巧', content: '油皮用控油妆前，干皮用保湿妆前。粉底液少量多次，避免厚重。瑕疵处用遮瑕膏点涂。' }]
+        ];
+
+        let selectedFile = null;
+
+        function random(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        // 生成 6.5-9.5 之间更随机的总分（正态分布）
+        function generateTotalScore() {
+            const u1 = Math.random();
+            const u2 = Math.random();
+            let z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+            let score = 8.0 + z * 0.6;
+            score = Math.max(6.5, Math.min(9.5, score));
+            return score.toFixed(1);
+        }
+
+        function handleFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { alert('请选择图片文件！'); input.value = ''; return; }
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('fileName').textContent = '已选择：' + file.name;
+                document.getElementById('previewContainer').style.display = 'block';
+                document.getElementById('uploadArea').style.display = 'none';
+                document.getElementById('startBtn').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function startAnalyze() {
+            if (!selectedFile) { alert('请先选择照片！'); return; }
+            document.getElementById('uploadPage').style.display = 'none';
+            document.getElementById('loadingPage').style.display = 'block';
+            setTimeout(() => {
+                generateResult();
+                document.getElementById('loadingPage').style.display = 'none';
+                document.getElementById('resultPage').style.display = 'block';
+                document.getElementById('resultPage').classList.remove('result-section');
+                setTimeout(() => {
+                    const total = parseFloat(document.getElementById('totalScore').textContent);
+                    document.getElementById('scoreBar').style.width = (total * 10) + '%';
+                    document.querySelectorAll('.feature-fill').forEach(f => f.style.width = f.getAttribute('data-width'));
+                }, 100);
+            }, 2000);
+        }
+
+        function generateResult() {
+            const type = random(beautyTypes);
+            document.getElementById('typeName').textContent = type.name;
+            document.getElementById('typeDesc').textContent = type.desc;
+            document.getElementById('typeTags').innerHTML = type.tags.map(t => `<span class="type-tag">${t}</span>`).join('');
+
+            // 生成总分 (6.5-9.5 之间随机分布)
+            const totalScore = generateTotalScore();
+            document.getElementById('totalScore').textContent = totalScore;
+
+            const baseScore = parseFloat(totalScore);
+
+            // 五官分析 - 围绕总分波动
+            const wuguanScores = [
+                { name: '眼睛', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.2))).toFixed(1), pros: random(wuguanData.eyes).pros, cons: random(wuguanData.eyes).cons },
+                { name: '鼻子', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.0))).toFixed(1), pros: random(wuguanData.nose).pros, cons: random(wuguanData.nose).cons },
+                { name: '嘴唇', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.1))).toFixed(1), pros: random(wuguanData.lips).pros, cons: random(wuguanData.lips).cons },
+                { name: '脸型', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.3))).toFixed(1), pros: random(wuguanData.face).pros, cons: random(wuguanData.face).cons }
+            ];
+            renderFeatures('wuguanAnalysis', wuguanScores);
+
+            // 骨相分析
+            const guxiangScores = [
+                { name: '轮廓立体度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.0))).toFixed(1), pros: '骨骼结构良好', cons: '可通过妆容优化' },
+                { name: '颧骨形态', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 0.9))).toFixed(1), pros: '骨骼结构良好', cons: '可通过妆容优化' },
+                { name: '下颌线', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.1))).toFixed(1), pros: '骨骼结构良好', cons: '可通过妆容优化' },
+                { name: '额头饱满度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 0.8))).toFixed(1), pros: '骨骼结构良好', cons: '可通过妆容优化' }
+            ];
+            renderFeatures('guxiangAnalysis', guxiangScores);
+
+            // 皮相分析
+            const pixiangScores = [
+                { name: '皮肤质感', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.2))).toFixed(1), pros: '皮肤状态正常', cons: '注意日常保养' },
+                { name: '肤色均匀度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.0))).toFixed(1), pros: '皮肤状态正常', cons: '注意日常保养' },
+                { name: '肤质细腻度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 1.1))).toFixed(1), pros: '皮肤状态正常', cons: '注意日常保养' },
+                { name: '光泽度', score: Math.max(6.5, Math.min(9.5, (baseScore + (Math.random() - 0.5) * 0.9))).toFixed(1), pros: '皮肤状态正常', cons: '注意日常保养' }
+            ];
+            renderFeatures('pixiangAnalysis', pixiangScores);
+
+            // 详细分析
+            const eyeDetail = random(detailData.eyes);
+            const noseDetail = random(detailData.nose);
+            const lipDetail = random(detailData.lips);
+            const faceDetail = random(detailData.face);
+
+            document.getElementById('detailAnalysis').innerHTML = `
+                <div class="detail-card"><div class="detail-title">👁️ 眼部分析</div><div class="detail-content"><p>您的眼睛属于<strong>${eyeDetail.type}</strong>，具有<strong>${eyeDetail.feature}</strong>的特点。</p><ul class="detail-list">${eyeDetail.items.map(i => `<li>${i}</li>`).join('')}</ul></div></div>
+                <div class="detail-card"><div class="detail-title">👃 鼻部分析</div><div class="detail-content"><p>您的鼻子属于<strong>${noseDetail.type}</strong>，具有<strong>${noseDetail.feature}</strong>的特征。</p><ul class="detail-list">${noseDetail.items.map(i => `<li>${i}</li>`).join('')}</ul></div></div>
+                <div class="detail-card"><div class="detail-title">👄 唇部分析</div><div class="detail-content"><p>您的嘴唇属于<strong>${lipDetail.type}</strong>，具有<strong>${lipDetail.feature}</strong>的特点。</p><ul class="detail-list">${lipDetail.items.map(i => `<li>${i}</li>`).join('')}</ul></div></div>
+                <div class="detail-card"><div class="detail-title">🎭 脸型分析</div><div class="detail-content"><p>您的脸型属于<strong>${faceDetail.type}</strong>，具有<strong>${faceDetail.feature}</strong>的特征。</p><ul class="detail-list">${faceDetail.items.map(i => `<li>${i}</li>`).join('')}</ul></div></div>
+                <div class="detail-card"><div class="detail-title">🔬 骨骼结构</div><div class="detail-content"><p>您的面部骨骼结构优越，具有很好的抗衰老潜力。</p><ul class="detail-list"><li>面部立体度评分：${Math.max(6.5, Math.min(9.5, baseScore + Math.random() * 0.5)).toFixed(1)}/10</li><li>颧骨形态评分：${Math.max(6.5, Math.min(9.5, baseScore + Math.random() * 0.5)).toFixed(1)}/10</li><li>下颌线评分：${Math.max(6.5, Math.min(9.5, baseScore + Math.random() * 0.6)).toFixed(1)}/10</li></ul></div></div>
+                <div class="detail-card"><div class="detail-title">✨ 皮肤质量</div><div class="detail-content"><p>您的皮肤类型为<strong>中性皮肤</strong>，具有<strong>毛孔细腻</strong>的特点。</p><ul class="detail-list"><li>皮肤质感评分：${Math.max(6.5, Math.min(9.5, baseScore + Math.random() * 0.4)).toFixed(1)}/10</li><li>肤色均匀度评分：${Math.max(6.5, Math.min(9.5, baseScore + Math.random() * 0.5)).toFixed(1)}/10</li><li>皮肤光泽度评分：${Math.max(6.5, Math.min(9.5, baseScore + Math.random() * 0.6)).toFixed(1)}/10</li></ul></div></div>
+            `;
+
+            // 化妆建议
+            const makeup = random(makeupData);
+            document.getElementById('makeupList').innerHTML = makeup.map(m => `<li><strong>${m.title}</strong>${m.content}</li>`).join('');
+        }
+
+        function renderFeatures(containerId, data) {
+            document.getElementById(containerId).innerHTML = data.map(item => `
+                <div class="feature-item">
+                    <div class="feature-header"><span class="feature-name">${item.name}</span><span class="feature-score">${item.score}</span></div>
+                    <div class="feature-bar"><div class="feature-fill" data-width="${item.score * 10}%"></div></div>
+                    <div class="feature-pros">优点：${item.pros}</div>
+                    <div class="feature-cons">可优化：${item.cons}</div>
+                </div>
+            `).join('');
+        }
+
+        function reset() {
+            document.getElementById('resultPage').style.display = 'none';
+            document.getElementById('resultPage').classList.add('result-section');
+            document.getElementById('uploadPage').style.display = 'block';
+            document.getElementById('previewContainer').style.display = 'none';
+            document.getElementById('uploadArea').style.display = 'block';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('startBtn').disabled = true;
+            selectedFile = null;
+        }
+
+        function share() { alert('分享功能开发中...'); }
+    </script>
+</body>
+</html>
